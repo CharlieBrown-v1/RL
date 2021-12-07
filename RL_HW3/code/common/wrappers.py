@@ -5,7 +5,6 @@ from gym import spaces
 import cv2
 cv2.ocl.setUseOpenCL(False)
 
-
 class NoopResetEnv(gym.Wrapper):
     def __init__(self, env, noop_max=30):
         """Sample initial states by taking random number of no-ops on reset.
@@ -35,7 +34,6 @@ class NoopResetEnv(gym.Wrapper):
     def step(self, ac):
         return self.env.step(ac)
 
-
 class FireResetEnv(gym.Wrapper):
     def __init__(self, env):
         """Take action on reset for environments that are fixed until firing."""
@@ -55,7 +53,6 @@ class FireResetEnv(gym.Wrapper):
 
     def step(self, ac):
         return self.env.step(ac)
-
 
 class EpisodicLifeEnv(gym.Wrapper):
     def __init__(self, env):
@@ -93,7 +90,6 @@ class EpisodicLifeEnv(gym.Wrapper):
         self.lives = self.env.unwrapped.ale.lives()
         return obs
 
-
 class MaxAndSkipEnv(gym.Wrapper):
     def __init__(self, env, skip=4):
         """Return only every `skip`-th frame"""
@@ -125,7 +121,6 @@ class MaxAndSkipEnv(gym.Wrapper):
     def reset(self, **kwargs):
         return self.env.reset(**kwargs)
 
-
 class ClipRewardEnv(gym.RewardWrapper):
     def __init__(self, env):
         gym.RewardWrapper.__init__(self, env)
@@ -133,7 +128,6 @@ class ClipRewardEnv(gym.RewardWrapper):
     def reward(self, reward):
         """Bin reward to {+1, 0, -1} by its sign."""
         return np.sign(reward)
-
 
 class WarpFrame(gym.ObservationWrapper):
     def __init__(self, env):
@@ -178,7 +172,6 @@ class FrameStack(gym.Wrapper):
         assert len(self.frames) == self.k
         return LazyFrames(list(self.frames))
 
-
 class ScaledFloatFrame(gym.ObservationWrapper):
     def __init__(self, env):
         gym.ObservationWrapper.__init__(self, env)
@@ -187,7 +180,6 @@ class ScaledFloatFrame(gym.ObservationWrapper):
         # careful! This undoes the memory optimization, use
         # with smaller replay buffers only.
         return np.array(observation).astype(np.float32) / 255.0
-
 
 class LazyFrames(object):
     def __init__(self, frames):
@@ -217,14 +209,12 @@ class LazyFrames(object):
     def __getitem__(self, i):
         return self._force()[i]
 
-
 def make_atari(env_id):
     env = gym.make(env_id)
     assert 'NoFrameskip' in env.spec.id
     env = NoopResetEnv(env, noop_max=30)
     env = MaxAndSkipEnv(env, skip=4)
     return env
-
 
 def wrap_deepmind(env, episode_life=True, clip_rewards=True, frame_stack=True, scale=False):
     """Configure environment for DeepMind-style Atari.
@@ -241,6 +231,7 @@ def wrap_deepmind(env, episode_life=True, clip_rewards=True, frame_stack=True, s
     if frame_stack:
         env = FrameStack(env, 4)
     return env
+
 
 
 class ImageToPyTorch(gym.ObservationWrapper):

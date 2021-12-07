@@ -35,4 +35,8 @@ class Tester(object):
 
             avg_reward += episode_reward
         avg_reward /= self.num_episodes
-        print("avg reward: %5f" % avg_reward)
+        print("avg reward: %5f" % (avg_reward))
+
+
+
+

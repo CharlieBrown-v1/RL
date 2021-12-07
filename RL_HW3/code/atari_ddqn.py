@@ -2,7 +2,6 @@ import argparse
 import os
 import random
 import torch
-from torch import nn
 from torch.optim import Adam
 from tester import Tester
 from buffer import RolloutStorage
@@ -12,7 +11,6 @@ from core.util import get_class_attr_val
 from model import CnnDQN
 from trainer import Trainer
 import numpy as np
-
 
 class CnnDDQNAgent:
     def __init__(self, config: Config):
@@ -24,16 +22,14 @@ class CnnDDQNAgent:
         self.target_model.load_state_dict(self.model.state_dict())
         self.model_optim = torch.optim.RMSprop(self.model.parameters(), lr=self.config.learning_rate,
                                                eps=1e-5, weight_decay=0.95, momentum=0, centered=True)
-        self.loss_func = nn.MSELoss()
 
         if self.config.use_cuda:
             self.cuda()
 
     def act(self, state, epsilon=None):
-        if epsilon is None:
-            epsilon = self.config.epsilon_min
+        if epsilon is None: epsilon = self.config.epsilon_min
         if random.random() > epsilon or not self.is_training:
-            state = torch.tensor(state, dtype=torch.float) / 255.0
+            state = torch.tensor(state, dtype=torch.float)/255.0
             if self.config.use_cuda:
                 state = state.to(self.config.device)
             q_value = self.model.forward(state)
@@ -44,9 +40,9 @@ class CnnDDQNAgent:
 
     def learning(self, fr):
         s0, s1, a, r, done = self.buffer.sample(self.config.batch_size)
-        if not self.config.use_cuda:
-            s0 = s0.float().to(self.config.device) / 255.0
-            s1 = s1.float().to(self.config.device) / 255.0
+        if self.config.use_cuda:
+            s0 = s0.float().to(self.config.device)/255.0
+            s1 = s1.float().to(self.config.device)/255.0
             a = a.to(self.config.device)
             r = r.to(self.config.device)
             done = done.to(self.config.device)
@@ -54,19 +50,14 @@ class CnnDDQNAgent:
         # How to calculate Q(s,a) for all actions
         # q_values is a vector with size (batch_size, action_shape, 1)
         # each dimension i represents Q(s0,a_i)
-        q_values = self.model(s0)
-        Q = q_values.gather(1, a)
+        q_values = self.model(s0).cuda()
 
         # How to calculate argmax_a Q(s,a)
         actions = q_values.max(1)[1]
 
         # Tips: function torch.gather may be helpful
         # You need to design how to calculate the loss
-        not_done = 1 - done
-        next_max_Q = self.target_model(s1).max(1)[0].detach().view(self.config.batch_size, 1)
-        next_Q = not_done * next_max_Q
-        target_Q = r + (self.config.gamma * next_Q)
-        loss = self.loss_func(Q, target_Q)
+        loss = 0
 
         self.model_optim.zero_grad()
         loss.backward()
@@ -115,7 +106,7 @@ class CnnDDQNAgent:
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='')
-    parser.add_argument('--train', dest='train', action='store_true', help='train model', default=True)
+    parser.add_argument('--train', dest='train', action='store_true', help='train model')
     parser.add_argument('--env', default='PongNoFrameskip-v4', type=str, help='gym environment')
     parser.add_argument('--test', dest='test', action='store_true', help='test model')
     parser.add_argument('--retrain', dest='retrain', action='store_true', help='retrain model')
@@ -139,7 +130,7 @@ if __name__ == '__main__':
     config.use_cuda = args.cuda
     config.learning_rate = 1e-6
     config.init_buff = 10000
-    config.max_buff = 25000  # 100000
+    config.max_buff = 100000
     config.learning_interval = 4
     config.update_tar_interval = 1000
     config.batch_size = 32

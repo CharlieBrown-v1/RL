@@ -1,7 +1,6 @@
 import torch
 from torch import nn
 
-
 class DQN(nn.Module):
     def __init__(self, num_inputs, actions_dim):
         super(DQN, self).__init__()
@@ -17,12 +16,11 @@ class DQN(nn.Module):
     def forward(self, x):
         return self.nn(x)
 
-
 class CnnDQN(nn.Module):
     def __init__(self, inputs_shape, num_actions):
         super(CnnDQN, self).__init__()
 
-        self.input_shape = inputs_shape
+        self.inut_shape = inputs_shape
         self.num_actions = num_actions
 
         self.features = nn.Sequential(
@@ -48,4 +46,4 @@ class CnnDQN(nn.Module):
         return x
 
     def features_size(self):
-        return self.features(torch.zeros(1, *self.input_shape)).view(1, -1).size(1)
+        return self.features(torch.zeros(1, *self.inut_shape)).view(1, -1).size(1)
