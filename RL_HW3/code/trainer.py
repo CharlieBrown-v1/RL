@@ -57,7 +57,6 @@ class Trainer:
                 losses.append(loss)
                 self.board_logger.scalar_summary('Loss per frame', fr, loss)
 
-
             if fr % self.config.print_interval == 0:
                 print(
                     "TIME {}  num timesteps {}, FPS {} \n Loss {:.3f}, avrage reward {:.1f}"

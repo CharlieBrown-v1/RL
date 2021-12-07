@@ -21,7 +21,8 @@ class TensorBoardLogger(object):
 
 	def __init__(self, log_dir):
 		"""Create a summary writer logging to log_dir."""
-		self.writer = tf.compat.v1.summary.FileWriter(log_dir)
+		with tf.compat.v1.Graph().as_default():
+			self.writer = tf.compat.v1.summary.FileWriter(log_dir)
 
 	def scalar_summary(self, tag, step, value):
 		"""Log a scalar variable."""
