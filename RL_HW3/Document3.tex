@@ -1,5 +1,3 @@
-% Test tex file!
-
 \documentclass[a4paper,12pt]{article}
 \usepackage{times}  % DO NOT CHANGE THIS
 \usepackage{helvet} % DO NOT CHANGE THIS
@@ -19,45 +17,236 @@
 \usepackage{amsmath} 
 \usepackage{xcolor}
 \usepackage{amssymb}
+\usepackage{enumerate}
 \usepackage{amsmath}
-\usepackage{CJKutf8}
+\usepackage{xeCJK}
 \usepackage{courier}
+\DeclareMathOperator*{\argmax}{argmax} % thin space, limits underneath in displays
 
 \begin{document}
 
-\begin{CJK}{UTF8}{gbsn}
-% \begin{CJK}{UTF8}{gkai}
-
 \title{强化学习：作业三}
 
-\author{张三 MG21370001}
+\author{杨思航 191180166}
 
 \date{\today}
 
 \maketitle
 
 \section{作业内容}
-在gym Atari环境中实现DQN算法及其变体。
+在Atari环境下实现Deep Q-learning Network算法。
+
+\section{实验环境}
+\begin{itemize}
+    \item NAME = Ubuntu
+    \item VERSION = 20.04.2 LTS(Focal Fossa)
+\end{itemize}
 
 \section{实现过程}
+\begin{enumerate}
+    \item 超参修改
+    \begin{enumerate}[(1)]
+        \item 修改原则: 最大化 DQN 性能
+        \item learning\_rate: $1e-6\to 1e-4$
+        \item learning\_interval: $4\to 1$
+        \item 优化器:
+        \begin{itemize}
+            \item RMSprop $\to$ Adam
+            \item eps: $1e-5\to 1e-3$
+            \item 移除参数 weight\_decay, momentum, centered
+        \end{itemize}
+    \end{enumerate}
+    \newpage
+    \item DQN (后续代码均仅列出相较于 DQN 而言修改过的部分)
+    \begin{itemize}
+        \item Q
+        \begin{figure*}[h!]
+            \centering
+            \includegraphics[scale=0.5]{pics/dqn-Q.png}
+        \end{figure*}
+        \item target-Q
+        \begin{figure*}[h!]
+            \centering
+            \includegraphics[scale=0.3]{pics/dqn-tQ.png}
+        \end{figure*}
+        \item loss (loss\_func = MSELoss)
+        \begin{figure*}[h!]
+            \centering
+            \includegraphics[scale=0.5]{pics/dqn-loss.png}
+        \end{figure*}
+    \end{itemize}
+    \item Double DQN
+    \begin{itemize}
+        \item target-Q
+        \begin{figure*}[h!]
+            \centering
+            \includegraphics[scale=0.3]{pics/ddqn-tQ.png}
+        \end{figure*}
+    \end{itemize}
+    \newpage
+    \item Dueling DQN
+    \begin{itemize}
+        \item value
+        \begin{figure*}[h!]
+            \centering
+            \includegraphics[scale=0.35]{pics/dueldqn-val.png}
+        \end{figure*}
+        \item advantage
+        \begin{figure*}[h!]
+            \centering
+            \includegraphics[scale=0.35]{pics/dueldan-advan.png}
+        \end{figure*}
+        \item forward
+        \begin{itemize}
+            \item From Lecture 8 Page 14
+            \begin{figure*}[h!]
+                \centering
+                \includegraphics[scale=0.35]{pics/dueldqn-version.png}
+            \end{figure*}
+            \item 代码
+            \begin{figure*}[h!]
+                \centering
+                \includegraphics[scale=0.4]{pics/dueldqn-for.png}
+            \end{figure*}
+        \end{itemize}
+    \end{itemize}
+\end{enumerate}
 
-首先...然后...
-
-\section{复现方式}
-复现DQN:在主文件夹下运行 \texttt{python atari\_ddqn.py --train}.
-
-\noindent复现其他变体:
 \section{实验效果}
-描述累计奖励和样本训练量之间的关系。
+\begin{enumerate}
+    \item DQN
+    \begin{itemize}
+        \item train 
+        \begin{enumerate}
+            \item 运行结果
+            \begin{figure*}[h!]
+                \centering
+                \includegraphics[width=12cm, height=0.5cm]{pics/dqn-ada.png}
+            \end{figure*}
+            \item tensorboard
+            \begin{figure*}[h!]
+                \centering
+                \includegraphics[scale=0.28]{pics/dqn-t0.png}
+            \end{figure*}
+            \begin{figure*}[h!]
+                \centering
+                \includegraphics[scale=0.28]{pics/dqn-t1.png}
+            \end{figure*}
+        \end{enumerate}
+        \newpage
+        \item test
+        \begin{figure*}[h!]
+            \centering
+            \includegraphics[width=8cm, height=0.7cm]{pics/dqn-test.png}
+        \end{figure*}
+        \item gif 见 dqn.gif
+    \end{itemize}
+    \item Double DQN
+    \begin{itemize}
+        \item train 
+        \begin{enumerate}
+            \item 运行结果
+            \begin{figure*}[h!]
+                \centering
+                \includegraphics[width=12cm, height=0.5cm]{pics/ddqn-ada.png}
+            \end{figure*}
+            \item tensorboard
+            \begin{figure*}[h!]
+                \centering
+                \includegraphics[scale=0.28]{pics/ddqn-t0.png}
+            \end{figure*}
+            \newpage
+            \begin{figure*}[h!]
+                \centering
+                \includegraphics[scale=0.28]{pics/ddqn-t1.png}
+            \end{figure*}
+        \end{enumerate}
+        \item test
+        \begin{figure*}[h!]
+            \centering
+            \includegraphics[width=8cm, height=0.7cm]{pics/ddqn-test.png}
+        \end{figure*}
+        \item gif 见 ddqn.gif
+    \end{itemize}
+    \item Dueling DQN
+    \begin{itemize}
+        \item train 
+        \begin{enumerate}
+            \item 运行结果
+            \begin{figure*}[h!]
+                \centering
+                \includegraphics[width=12cm, height=0.5cm]{pics/dueldqn-ada.png}
+            \end{figure*}
+            \newpage
+            \item tensorboard
+            \begin{figure*}[h!]
+                \centering
+                \includegraphics[scale=0.28]{pics/dueldqn-t0.png}
+            \end{figure*}
+            \begin{figure*}[h!]
+                \centering
+                \includegraphics[scale=0.28]{pics/dueldqn-t1.png}
+            \end{figure*}
+        \end{enumerate}
+        \item test
+        \begin{figure*}[h!]
+            \centering
+            \includegraphics[width=12cm, height=1cm]{pics/dueldqn-res.png}
+        \end{figure*}
+        \item gif 见 dueldqn.gif
+    \end{itemize}
+\end{enumerate}
 
-\noindent DQN:
-
-\noindent其他变体：
+\newpage
+\section{复现实验}
+\begin{itemize}
+    \item 为方便助教复现, 我已将代码整合成3份, 助教可于各文件夹内通过 tensorboard 或 $--$test 进行复现 
+    \item DQN
+    \begin{itemize}
+        \item tensorboard
+        \begin{figure*}[h!]
+            \centering
+            \includegraphics[width=12cm, height=1cm]{pics/dqn-t-re.png}
+        \end{figure*}
+        \item test
+        \begin{figure*}[h!]
+            \centering
+            \includegraphics[width=15cm, height=1cm]{pics/dqn-test-re.png}
+        \end{figure*}
+    \end{itemize}
+    \item Doublu DQN
+    \begin{itemize}
+        \item tensorboard
+        \begin{figure*}[h!]
+            \centering
+            \includegraphics[width=12cm, height=1cm]{pics/ddqn-t-re.png}
+        \end{figure*}
+        \item test
+        \begin{figure*}[h!]
+            \centering
+            \includegraphics[width=15cm, height=1cm]{pics/ddqn-test-re.png}
+        \end{figure*}
+    \end{itemize}
+    \item Dueling DQN
+    \begin{itemize}
+        \item tensorboard
+        \begin{figure*}[h!]
+            \centering
+            \includegraphics[width=12cm, height=1cm]{pics/dueldqn-t-re.png}
+        \end{figure*}
+        \item test
+        \begin{figure*}[h!]
+            \centering
+            \includegraphics[width=15cm, height=1cm]{pics/dueldqn-test-re.png}
+        \end{figure*}
+    \end{itemize}
+\end{itemize}
 
 \section{小结}
-在这次实验中，我发现...
+\begin{itemize}
+    \item 本次作业帮助我掌握了 tensorflow 与 pytorch 的基本使用, 加深了对深度强化学习的理解
+    \item weight\_decay 设置过大会造成模型训练时过于“守旧”, 无法习得新能力, 导致训练效果不良
+    \item 从实验结果可以看出: 相较于 DQN, Double DQN 虽然加速了训练, 但是训练曲线震荡更剧烈, 具体测试表现也稍弱于 DQN; 而 Dueling DQN 则在稳定性上有较大突破, 但是在我设置(专为 DQN 调整)的超参下训练稍慢于 DQN
+\end{itemize}
 
-
-
-\end{CJK}
 \end{document}
